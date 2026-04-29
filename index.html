@@ -14,24 +14,34 @@ body {
     padding: 20px;
 }
 
-.view-buttons {
-    margin-bottom: 15px;
-}
-
 button {
     padding: 8px 12px;
-    margin-right: 5px;
+    margin: 5px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
 }
 
+.view-buttons {
+    margin-bottom: 10px;
+}
+
+/* DAY VIEW */
+.hour-row {
+    display: flex;
+    border-bottom: 1px solid #333;
+    padding: 6px;
+    cursor: pointer;
+}
+
+.hour-time {
+    width: 60px;
+    color: #888;
+}
+
 .task {
     display: flex;
     gap: 10px;
-    padding: 8px;
-    border-bottom: 1px solid #333;
-    cursor: pointer;
 }
 
 .done-task {
@@ -39,12 +49,7 @@ button {
     opacity: 0.5;
 }
 
-.progress {
-    margin-top: 10px;
-    font-size: 13px;
-}
-
-/* 🔥 MONTH GRID */
+/* MONTH */
 .month-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -55,9 +60,8 @@ button {
     border: 1px solid #333;
     min-height: 90px;
     padding: 5px;
-    font-size: 12px;
-    cursor: pointer;
     background: #1a1a1a;
+    cursor: pointer;
 }
 
 .day-cell:hover {
@@ -73,119 +77,112 @@ button {
     <button onclick="setView('month')">Mes</button>
 </div>
 
-<h3 id="currentDate"></h3>
-
-<div id="calendar-container"></div>
+<h3 id="title"></h3>
+<div id="calendar"></div>
 
 <script>
 
 let tasksByDate = JSON.parse(localStorage.getItem('tasksByDate')) || {};
-let currentView = 'day';
-let selectedDate = getToday();
+let currentView = "day";
+let selectedDate = today();
 
-function getToday(){
-    return new Date().toISOString().split('T')[0];
+function today(){
+    return new Date().toISOString().split("T")[0];
 }
 
 function save(){
-    localStorage.setItem('tasksByDate', JSON.stringify(tasksByDate));
+    localStorage.setItem("tasksByDate", JSON.stringify(tasksByDate));
 }
 
-function formatDate(date){
-    return new Date(date).toLocaleDateString('es-MX',{
-        weekday:'long', year:'numeric', month:'long', day:'numeric'
-    });
-}
+/* ───── RENDER ───── */
 
-function renderCalendar(){
-    const container = document.getElementById('calendar-container');
-    const title = document.getElementById('currentDate');
-    container.innerHTML = '';
+function render(){
+    const el = document.getElementById("calendar");
+    el.innerHTML = "";
 
-    if(currentView === 'month'){
-        title.textContent = "Vista mensual";
-        renderMonth(container);
-        return;
+    if(currentView === "month"){
+        renderMonth(el);
+    } else {
+        renderDay(el);
     }
+}
 
-    title.textContent = formatDate(selectedDate);
+/* ───── DAY (HORAS) ───── */
+
+function renderDay(container){
+    document.getElementById("title").textContent = selectedDate;
 
     const tasks = tasksByDate[selectedDate] || [];
 
-    tasks.forEach((task, i) => {
-        const el = document.createElement('div');
-        el.className = `task ${task.completed ? 'done-task' : ''}`;
+    for(let h=7; h<=22; h++){
+        const hour = String(h).padStart(2,'0')+":00";
 
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = task.completed;
+        const row = document.createElement("div");
+        row.className = "hour-row";
 
-        checkbox.onclick = (e)=>{
-            e.stopPropagation();
-            toggleTask(i);
+        const time = document.createElement("div");
+        time.className = "hour-time";
+        time.textContent = hour;
+
+        const content = document.createElement("div");
+
+        const task = tasks.find(t=>t.time === hour);
+
+        if(task){
+            const taskEl = document.createElement("div");
+            taskEl.className = "task " + (task.completed ? "done-task" : "");
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = task.completed;
+
+            checkbox.onclick = (e)=>{
+                e.stopPropagation();
+                task.completed = !task.completed;
+                save();
+                render();
+            };
+
+            const text = document.createElement("span");
+            text.textContent = task.title;
+
+            taskEl.appendChild(checkbox);
+            taskEl.appendChild(text);
+
+            content.appendChild(taskEl);
+        }
+
+        row.onclick = ()=>{
+            const title = prompt("Tarea para "+hour);
+            if(!title) return;
+
+            if(!tasksByDate[selectedDate]){
+                tasksByDate[selectedDate] = [];
+            }
+
+            tasksByDate[selectedDate].push({
+                time: hour,
+                title,
+                completed:false
+            });
+
+            save();
+            render();
         };
 
-        const text = document.createElement('span');
-        text.textContent = task.title;
-
-        el.appendChild(checkbox);
-        el.appendChild(text);
-
-        el.onclick = () => checkbox.click();
-
-        container.appendChild(el);
-    });
-
-    const btn = document.createElement('button');
-    btn.textContent = '+ Agregar tarea';
-    btn.onclick = addWork;
-    container.appendChild(btn);
-
-    const completed = tasks.filter(t=>t.completed).length;
-    const prog = document.createElement('div');
-    prog.className = 'progress';
-    prog.textContent = `${completed}/${tasks.length} completadas`;
-    container.appendChild(prog);
-}
-
-function toggleTask(index){
-    const tasks = tasksByDate[selectedDate] || [];
-    tasks[index].completed = !tasks[index].completed;
-    save();
-    renderCalendar();
-}
-
-function addWork(){
-    const title = prompt("Nueva tarea");
-    if(!title) return;
-
-    if(!tasksByDate[selectedDate]){
-        tasksByDate[selectedDate] = [];
+        row.appendChild(time);
+        row.appendChild(content);
+        container.appendChild(row);
     }
-
-    tasksByDate[selectedDate].push({
-        title,
-        completed:false
-    });
-
-    save();
-    renderCalendar();
 }
 
-function setView(view){
-    currentView = view;
-    renderCalendar();
-}
-
-function openDay(date){
-    selectedDate = date;
-    currentView = 'day';
-    renderCalendar();
-}
+/* ───── MONTH ───── */
 
 function renderMonth(container){
-    const grid = document.createElement('div');
-    grid.className = 'month-grid';
+    document.getElementById("title").textContent = "Vista mensual";
+
+    const grid = document.createElement("div");
+    grid.className = "month-grid";
 
     const now = new Date();
     const year = now.getFullYear();
@@ -195,21 +192,26 @@ function renderMonth(container){
 
     for(let d=1; d<=totalDays; d++){
         const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const cell = document.createElement('div');
-        cell.className = 'day-cell';
 
-        cell.innerHTML = `<strong>${d}</strong>`;
+        const cell = document.createElement("div");
+        cell.className = "day-cell";
+
+        cell.innerHTML = "<strong>"+d+"</strong>";
 
         const tasks = tasksByDate[dateKey] || [];
 
         tasks.slice(0,2).forEach(t=>{
-            const div = document.createElement('div');
-            div.textContent = t.title;
+            const div = document.createElement("div");
+            div.textContent = t.time+" "+t.title;
             div.style.fontSize = "10px";
             cell.appendChild(div);
         });
 
-        cell.onclick = ()=>openDay(dateKey);
+        cell.onclick = ()=>{
+            selectedDate = dateKey;
+            currentView = "day";
+            render();
+        };
 
         grid.appendChild(cell);
     }
@@ -217,7 +219,14 @@ function renderMonth(container){
     container.appendChild(grid);
 }
 
-renderCalendar();
+/* ───── NAV ───── */
+
+function setView(v){
+    currentView = v;
+    render();
+}
+
+render();
 
 </script>
 
