@@ -2,251 +2,912 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Modo Acero</title>
-
 <style>
-body{
-  margin:0;
-  font-family:-apple-system;
-  background:#0d0d0d;
-  color:#e0e0e0;
-}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#d8d8d8;min-height:100vh;overflow-x:hidden;}
 
-.screen{display:none;padding:20px;}
+/* ── SCREENS ── */
+.screen{display:none;padding:32px 20px 48px;max-width:430px;margin:0 auto;text-align:center;}
 .active{display:block;}
 
-button{
-  padding:12px;
-  margin:6px 0;
-  border:none;
-  border-radius:10px;
-  background:#e0e0e0;
-  color:#000;
-  width:100%;
-}
+/* ── TYPE ── */
+h1{font-size:21px;font-weight:600;margin:0 0 6px;letter-spacing:-0.3px;color:#fff;}
+.sub{color:#484848;font-size:13px;margin-bottom:22px;}
+.label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#3a3a3a;}
 
-.small{
-  background:none;
-  border:1px solid #333;
-  color:#888;
-}
+/* ── BUTTONS ── */
+button{padding:14px;border:none;border-radius:12px;background:#e0e0e0;color:#000;font-weight:600;width:100%;margin-top:10px;cursor:pointer;font-size:14px;font-family:inherit;transition:opacity .15s,transform .1s;}
+button:active{transform:scale(.98);opacity:.85;}
+.btn-ghost{background:none;border:1px solid #1e1e1e;color:#555;font-weight:500;}
+.btn-ghost:hover{border-color:#2a2a2a;color:#777;}
+.btn-danger{background:#1a0a0a;border:1px solid #3a1a1a;color:#c0504040;}
 
-.block{
-  border:1px solid #222;
-  border-radius:10px;
-  padding:10px;
-  margin:10px 0;
-}
+/* ── ENERGY SCREEN ── */
+.streak-badge{display:inline-flex;align-items:center;gap:6px;background:#111;border:1px solid #1e1e1e;border-radius:20px;padding:6px 14px;font-size:12px;color:#666;margin-bottom:24px;}
+.streak-fire{font-size:14px;}
+.streak-num{color:#c87940;font-weight:600;}
 
-.task{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:6px;
-  cursor:pointer;
-}
+.energy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.energy-btn{background:#0f0f0f;border:1px solid #1e1e1e;color:#666;font-size:13px;padding:16px 8px;border-radius:12px;cursor:pointer;font-family:inherit;font-weight:500;width:100%;margin:0;transition:all .15s;line-height:1.4;}
+.energy-btn span{display:block;font-size:10px;color:#333;margin-top:3px;font-weight:400;}
+.energy-btn.selected{background:#141414;border-color:#2e2e2e;color:#e0e0e0;}
+.energy-btn.selected span{color:#555;}
 
-.done{
-  text-decoration:line-through;
-  color:#555;
-}
+/* ── TIMELINE CALENDAR ── */
+#calendar{text-align:left;}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;text-align:left;}
+.cal-date-text{font-size:16px;font-weight:600;color:#fff;}
+.cal-day-sub{font-size:12px;color:#444;margin-top:2px;}
+
+.timeline{position:relative;padding-left:52px;}
+.timeline::before{content:'';position:absolute;left:24px;top:0;bottom:0;width:1px;background:#151515;}
+
+.tl-block{position:relative;margin-bottom:6px;}
+.tl-time{position:absolute;left:-52px;top:14px;font-size:10px;color:#333;width:40px;text-align:right;font-variant-numeric:tabular-nums;}
+.tl-dot{position:absolute;left:-33px;top:18px;width:8px;height:8px;border-radius:50%;background:#1e1e1e;border:1px solid #2a2a2a;transform:translateX(-50%);}
+.tl-dot.active-block{background:#c87940;border-color:#c87940;box-shadow:0 0 8px #c8794040;}
+.tl-dot.done-block{background:#2a3a2a;border-color:#3a4a3a;}
+
+.tl-card{background:#0f0f0f;border:1px solid #181818;border-radius:12px;padding:14px 16px;cursor:default;transition:border-color .2s;}
+.tl-card.current{border-color:#2a2a1a;background:#0f0f0e;}
+.tl-card.done-card{opacity:.5;}
+
+.tl-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.tl-card-title{font-size:13px;font-weight:600;color:#bbb;}
+.tl-card-range{font-size:10px;color:#333;}
+.tl-card-done-mark{font-size:11px;color:#3a7a3a;}
+
+.tl-card-body{font-size:12px;color:#444;line-height:1.6;}
+.tl-card-body.has-content{color:#666;}
+
+.task-list{list-style:none;padding:0;margin:6px 0 0;}
+.task-list li{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#555;padding:3px 0;}
+.task-list li::before{content:'·';color:#2a2a2a;flex-shrink:0;margin-top:1px;}
+.task-list li.done-task{text-decoration:line-through;color:#333;}
+
+.outfit-inline{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;}
+.outfit-pill{font-size:11px;color:#555;background:#141414;border:1px solid #1e1e1e;border-radius:20px;padding:3px 10px;}
+.outfit-pill.confirmed{border-color:#1e3a1e;color:#3a7a3a;}
+
+.btn-start-block{width:100%;margin-top:8px;padding:10px;background:#141414;border:1px solid #2a2a2a;color:#888;border-radius:10px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500;transition:all .15s;}
+.btn-start-block:hover{background:#1a1a1a;color:#aaa;border-color:#333;}
+
+/* ── FOCUS SCREEN ── */
+.focus-block-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#3a3a3a;margin-bottom:8px;}
+.focus-task-name{font-size:24px;font-weight:600;color:#fff;margin:0 0 4px;line-height:1.3;}
+.focus-task-sub{font-size:13px;color:#444;margin-bottom:20px;}
+
+/* WORKOUT CARD in focus */
+.workout-card{background:#0f0f0f;border:1px solid #181818;border-radius:14px;padding:16px;margin:16px 0;text-align:left;}
+.workout-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #141414;}
+.workout-row:last-child{border:none;padding-bottom:0;}
+.workout-ex{font-size:13px;color:#999;}
+.workout-reps{font-size:12px;color:#444;font-variant-numeric:tabular-nums;}
+.workout-check{width:18px;height:18px;border-radius:50%;border:1px solid #2a2a2a;background:none;cursor:pointer;flex-shrink:0;transition:all .2s;}
+.workout-check.done{background:#2a3a2a;border-color:#3a5a3a;}
+
+.timer{font-size:52px;font-weight:200;letter-spacing:3px;color:#fff;margin:16px 0;font-variant-numeric:tabular-nums;}
+
+.progress-dots{display:flex;gap:5px;justify-content:center;margin-bottom:18px;}
+.pdot{width:5px;height:5px;border-radius:50%;background:#1a1a1a;}
+.pdot.p-done{background:#333;}
+.pdot.p-active{background:#c87940;}
+
+/* ── WORK SCREEN ── */
+.work-current{background:#0f0f0f;border:1px solid #1e1e1e;border-radius:14px;padding:20px;margin:16px 0;text-align:left;}
+.work-current-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#333;margin-bottom:8px;}
+.work-current-task{font-size:18px;font-weight:600;color:#fff;line-height:1.4;}
+.work-queue-preview{display:flex;flex-direction:column;gap:6px;margin:0 0 16px;text-align:left;}
+.wq-item{font-size:12px;color:#333;padding:6px 10px;background:#0d0d0d;border:1px solid #151515;border-radius:8px;}
+.wq-item.wq-next{color:#555;border-color:#1e1e1e;}
+
+/* ── AFTER SCREEN ── */
+.after-progress{display:flex;gap:3px;margin-bottom:20px;justify-content:center;}
+.ap-bar{height:3px;flex:1;background:#1a1a1a;border-radius:2px;max-width:60px;}
+.ap-bar.done{background:#3a3a3a;}
+.ap-bar.current{background:#c87940;}
+
+/* ── DONE SCREEN ── */
+.done-card{background:#0f0f0f;border:1px solid #181818;border-radius:16px;padding:24px;margin:20px 0;text-align:left;}
+.done-stat{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #141414;font-size:13px;}
+.done-stat:last-child{border:none;}
+.done-stat-label{color:#444;}
+.done-stat-val{color:#888;font-weight:500;}
+
+/* ── OUTFIT MODULE ── */
+.outfit-module{margin:16px 0;border:1px solid #1a1a1a;border-radius:14px;overflow:hidden;background:#0f0f0f;}
+.outfit-module-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #141414;}
+.outfit-module-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#3a3a3a;}
+.mode-toggle{display:flex;gap:3px;background:#080808;border-radius:7px;padding:3px;}
+.mode-btn{font-size:11px;padding:4px 10px;border:none;border-radius:5px;cursor:pointer;background:transparent;color:#3a3a3a;font-family:inherit;font-weight:500;transition:all .15s;width:auto;margin:0;}
+.mode-btn.active{background:#1a1a1a;color:#bbb;}
+.outfit-body{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#141414;}
+.outfit-item{background:#0f0f0f;padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.outfit-emoji{font-size:20px;line-height:1;}
+.outfit-item-label{font-size:9px;color:#333;letter-spacing:.06em;text-transform:uppercase;}
+.outfit-item-value{font-size:11px;color:#aaa;text-align:center;line-height:1.3;}
+.outfit-footer{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#141414;border-top:1px solid #141414;}
+.outfit-btn{background:#0f0f0f;border:none;color:#444;font-size:12px;padding:11px;cursor:pointer;font-family:inherit;font-weight:500;width:100%;margin:0;border-radius:0;transition:background .15s,color .15s;}
+.outfit-btn:hover{background:#141414;color:#666;}
+.outfit-btn:active{transform:none;}
+.outfit-btn.primary{color:#aaa;}
+.outfit-confirmed{border-color:#1a2e1a;}
+.outfit-status{font-size:10px;text-align:center;padding:7px;color:#2e6a2e;letter-spacing:.05em;display:none;}
+.outfit-status.visible{display:block;}
+.history-row{display:flex;flex-wrap:wrap;gap:5px;padding:8px 14px;border-top:1px solid #141414;}
+.history-chip{font-size:10px;color:#2a2a2a;padding:2px 8px;background:#0a0a0a;border-radius:20px;border:1px solid #141414;}
+
+/* ── LOCK OVERLAY ── */
+#lockOverlay{position:fixed;inset:0;background:#0a0a0aee;z-index:100;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;text-align:center;padding:20px;}
+#lockOverlay.visible{display:flex;}
+.lock-msg{font-size:16px;font-weight:600;color:#fff;}
+.lock-sub{font-size:13px;color:#444;}
+
+/* ── NAV BAR ── */
+.nav-bar{position:fixed;bottom:0;left:0;right:0;background:#0a0a0a;border-top:1px solid #141414;display:none;justify-content:space-around;padding:10px 0 20px;z-index:50;}
+.nav-bar.visible{display:flex;}
+.nav-btn{background:none;border:none;color:#333;font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;width:auto;margin:0;font-family:inherit;transition:color .15s;border-radius:8px;}
+.nav-btn:active{transform:none;opacity:1;}
+.nav-btn.nav-active{color:#888;}
+.nav-icon{font-size:18px;line-height:1;}
 </style>
 </head>
-
 <body>
 
-<!-- START -->
-<div id="start" class="screen active">
-  <h2>Modo Acero</h2>
-  <button onclick="startDay()">EMPEZAR DÍA</button>
+<!-- ── LOCK OVERLAY ── -->
+<div id="lockOverlay">
+  <div style="font-size:32px">🔒</div>
+  <div class="lock-msg">Empieza primero</div>
+  <div class="lock-sub">Inicia el bloque actual antes de navegar</div>
+  <button onclick="hideLock()" style="width:auto;padding:10px 24px;margin-top:4px;">Entendido</button>
 </div>
 
-<!-- FOCUS -->
-<div id="focus" class="screen">
-  <h2 id="focusText"></h2>
+<!-- ── NAV BAR ── -->
+<div class="nav-bar" id="navBar">
+  <button class="nav-btn" onclick="navTo('calendar')">
+    <span class="nav-icon">📅</span>Día
+  </button>
+  <button class="nav-btn" onclick="navTo('focus-or-work')">
+    <span class="nav-icon">⚡</span>Foco
+  </button>
+  <button class="nav-btn" onclick="navTo('after')">
+    <span class="nav-icon">🌆</span>Noche
+  </button>
+</div>
 
-  <div class="block">
-    <strong>OUTFIT DEL DÍA</strong>
-    <div id="outfit"></div>
-    <button class="small" onclick="generateOutfit()">Cambiar</button>
+<!-- ── ENERGY / START ── -->
+<div id="energy" class="screen active">
+  <div style="margin-bottom:6px;">
+    <div class="streak-badge">
+      <span class="streak-fire">🔥</span>
+      <span class="streak-num" id="streakNum">0</span>
+      <span style="color:#444">días seguidos</span>
+    </div>
   </div>
 
-  <button onclick="nextFocus()">SIGUIENTE</button>
+  <h1>Modo Acero</h1>
+  <div class="sub" id="todayDate"></div>
+
+  <div class="energy-grid">
+    <button class="energy-btn" id="ebtn-low" onclick="setEnergy('low')">
+      ↓ Baja
+      <span>movilidad suave</span>
+    </button>
+    <button class="energy-btn selected" id="ebtn-normal" onclick="setEnergy('normal')">
+      → Normal
+      <span>rutina estándar</span>
+    </button>
+    <button class="energy-btn" id="ebtn-high" onclick="setEnergy('high')">
+      ↑ Alta
+      <span>máximo esfuerzo</span>
+    </button>
+  </div>
+
+  <button onclick="startDay()">EMPEZAR DÍA →</button>
+  <button class="btn-ghost" onclick="openCalendarDirect()" style="margin-top:8px;">Ver mi día →</button>
 </div>
 
-<!-- WORK -->
-<div id="work" class="screen">
-  <h2>Trabajo</h2>
-  <div id="currentTask"></div>
-
-  <button onclick="completeTask()">LISTO</button>
-  <button class="small" onclick="addTask()">+ Agregar</button>
-  <button class="small" onclick="goCalendar()">📅 Calendario</button>
-</div>
-
-<!-- CALENDAR -->
+<!-- ── TIMELINE CALENDAR ── -->
 <div id="calendar" class="screen">
-  <h2>Hoy</h2>
-  <div id="calendarContent"></div>
-  <button onclick="goWork()">← Volver</button>
+  <div class="cal-header">
+    <div>
+      <div class="cal-date-text" id="calDateBig"></div>
+      <div class="cal-day-sub" id="calDaySub"></div>
+    </div>
+    <div class="streak-badge" style="margin:0;">
+      <span class="streak-fire">🔥</span>
+      <span class="streak-num" id="calStreakNum">0</span>
+    </div>
+  </div>
+
+  <div class="timeline" id="timelineContent"></div>
+
+  <button class="btn-ghost" id="calBackBtn" onclick="back()" style="margin-top:16px;">← Volver</button>
+</div>
+
+<!-- ── FOCUS ── -->
+<div id="focus" class="screen">
+  <div class="progress-dots" id="progressDots"></div>
+  <div class="focus-block-label" id="focusBlockLabel"></div>
+  <div class="focus-task-name" id="focusText"></div>
+  <div class="focus-task-sub" id="focusType"></div>
+
+  <!-- WORKOUT (shown only in workout step) -->
+  <div id="workoutCard" class="workout-card" style="display:none;"></div>
+
+  <!-- OUTFIT (shown only in prep step) -->
+  <div class="outfit-module" id="outfitModule">
+    <div class="outfit-module-header">
+      <span class="outfit-module-label">Outfit del día</span>
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="mbtn-trabajo" onclick="setDayType('trabajo')">Trabajo</button>
+        <button class="mode-btn" id="mbtn-relajado" onclick="setDayType('relajado')">Relajado</button>
+      </div>
+    </div>
+    <div class="outfit-body">
+      <div class="outfit-item">
+        <span class="outfit-emoji">👖</span>
+        <span class="outfit-item-label">Pantalón</span>
+        <span class="outfit-item-value" id="val-pantalon">—</span>
+      </div>
+      <div class="outfit-item">
+        <span class="outfit-emoji">👕</span>
+        <span class="outfit-item-label">Superior</span>
+        <span class="outfit-item-value" id="val-superior">—</span>
+      </div>
+      <div class="outfit-item">
+        <span class="outfit-emoji">👟</span>
+        <span class="outfit-item-label">Calzado</span>
+        <span class="outfit-item-value" id="val-calzado">—</span>
+      </div>
+    </div>
+    <div class="outfit-footer">
+      <button class="outfit-btn" onclick="generateOutfit()">↺ Cambiar</button>
+      <button class="outfit-btn primary" id="btnConfirm" onclick="confirmOutfit()">✓ Usar este</button>
+    </div>
+    <div class="outfit-status" id="outfitStatus">Outfit guardado. No pienses más.</div>
+    <div class="history-row" id="historyRow"></div>
+  </div>
+
+  <div class="timer" id="timer">25:00</div>
+
+  <button onclick="startTimer()">EMPEZAR</button>
+  <button class="btn-ghost" id="focusSkipBtn" onclick="skipBlock()">Saltar →</button>
+</div>
+
+<!-- ── WORK ── -->
+<div id="work" class="screen">
+  <h1>Trabajo</h1>
+
+  <div class="work-current">
+    <div class="work-current-label">Ahora</div>
+    <div class="work-current-task" id="workTask">Sin pendientes</div>
+  </div>
+
+  <div class="work-queue-preview" id="workQueuePreview"></div>
+
+  <button onclick="completeWork()">LISTO →</button>
+  <button class="btn-ghost" onclick="addWork()">+ Agregar tarea</button>
+  <button class="btn-ghost" onclick="navTo('calendar')">📅 Ver día</button>
+</div>
+
+<!-- ── AFTER ── -->
+<div id="after" class="screen">
+  <div class="after-progress" id="afterProgress"></div>
+  <div class="focus-block-label" id="afterBlockLabel"></div>
+  <h1 id="afterText"></h1>
+  <div class="sub" id="afterSub"></div>
+  <button onclick="nextAfter()">SIGUIENTE →</button>
+  <button class="btn-ghost" onclick="navTo('calendar')">📅 Ver día</button>
+</div>
+
+<!-- ── DONE ── -->
+<div id="done" class="screen">
+  <div style="font-size:40px;margin-bottom:12px;">✓</div>
+  <h1>Día completado</h1>
+  <div class="sub">Descansa. Mañana de nuevo.</div>
+
+  <div class="done-card" id="doneCard"></div>
+
+  <button onclick="resetDay()" class="btn-ghost" style="margin-top:16px;">Nueva tarea para mañana</button>
 </div>
 
 <script>
+/* ══════════════════════════════
+   STATE
+══════════════════════════════ */
+let energy = "normal";
+let dayMode = "";
+let timerVal = 25 * 60;
+let interval;
+let dayStarted = false;
+let workQueue = [];
+let workIndex = 0;
+let afterTasks = [];
+let afterIndex = 0;
+let currentFlowStep = ""; // "workout" | "prep" | "work" | "after"
 
-/* ================= STATE ================= */
-let workQueue = JSON.parse(localStorage.getItem("tasks") || "[]");
-let workIndex = parseInt(localStorage.getItem("index") || "0");
-let focusStep = 0;
-
-/* ================= START ================= */
-function startDay(){
-  generateOutfit();
-  startFocus();
-}
-
-/* ================= FOCUS ================= */
-function startFocus(){
-  focusStep = 0;
-  show("focus");
-  renderFocus();
-}
-
-function renderFocus(){
-  const steps = ["Calistenia", "Prepararte"];
-  document.getElementById("focusText").innerText = steps[focusStep];
-}
-
-function nextFocus(){
-  focusStep++;
-  if(focusStep >= 2){
-    goWork();
-  } else {
-    renderFocus();
+/* ── OUTFIT ── */
+const INVENTARIO = {
+  pantalones: ["café","verde","azul oscuro","mezclilla"],
+  superiores: [
+    {nombre:"polo blanco",tipo:"polo claro"},
+    {nombre:"polo azul",tipo:"polo claro"},
+    {nombre:"polo verde",tipo:"polo claro"},
+    {nombre:"polo gris",tipo:"polo claro"},
+    {nombre:"playera negra",tipo:"negro"},
+    {nombre:"playera gris",tipo:"claro"}
+  ],
+  calzado:{
+    trabajo:["zapatos café","zapatos negros"],
+    relajado:["zapatos café","zapatos negros","tenis blancos"]
   }
+};
+const REGLAS = {
+  "negro":      {pantalones:["café","verde","mezclilla"],zapatos:["zapatos negros","zapatos café","tenis blancos"]},
+  "polo claro": {pantalones:["café","verde","azul oscuro","mezclilla"],zapatos:["zapatos café","zapatos negros","tenis blancos"]},
+  "claro":      {pantalones:["café","verde","azul oscuro","mezclilla"],zapatos:["zapatos café","zapatos negros","tenis blancos"]}
+};
+const ZAPATOS_PANTALON = {
+  "zapatos café":  ["café","verde","azul oscuro"],
+  "zapatos negros":["azul oscuro","mezclilla","verde"],
+  "tenis blancos": ["café","verde","azul oscuro","mezclilla"]
+};
+let dayType = "trabajo";
+let currentOutfit = null;
+let historial = [];
+let outfitConfirmed = false;
+
+/* ── WORKOUTS ── */
+const WORKOUTS = {
+  low: [
+    {ex:"Movilidad articular",reps:"5 min"},
+    {ex:"Estiramiento caderas",reps:"10 rep/lado"},
+    {ex:"Cat-cow",reps:"10 rep"},
+    {ex:"Caminata suave",reps:"10 min"}
+  ],
+  normal: [
+    {ex:"Plancha",reps:"3×30 seg"},
+    {ex:"Sentadillas",reps:"3×15"},
+    {ex:"Flexiones",reps:"3×12"},
+    {ex:"Bicicleta abdominal",reps:"3×20"},
+    {ex:"Zancadas",reps:"2×12/lado"}
+  ],
+  high: [
+    {ex:"Burpees",reps:"4×10"},
+    {ex:"Flexiones explosivas",reps:"4×12"},
+    {ex:"Sentadillas con salto",reps:"4×15"},
+    {ex:"Plancha con toque",reps:"3×20"},
+    {ex:"Dominadas asistidas",reps:"3×8"},
+    {ex:"Bicicleta abdominal",reps:"4×25"}
+  ]
+};
+
+/* ── SCHEDULE ── */
+const SCHEDULE = [
+  {id:"activacion", time:"07:00",endTime:"09:00",icon:"🌅",title:"Activación",desc:"Ejercicio + preparación + outfit"},
+  {id:"oficina-am", time:"09:00",endTime:"14:00",icon:"💼",title:"Oficina",desc:"Bloque de trabajo principal"},
+  {id:"comida",     time:"14:00",endTime:"16:00",icon:"🥗",title:"Comida + caminata",desc:"Recarga y movimiento"},
+  {id:"oficina-pm", time:"16:00",endTime:"18:00",icon:"💼",title:"Oficina",desc:"Segundo bloque de trabajo"},
+  {id:"crecimiento",time:"18:00",endTime:"20:00",icon:"📈",title:"Crecimiento",desc:"App, privacidad, spa"},
+  {id:"personal",   time:"20:00",endTime:"22:00",icon:"🏠",title:"Vida personal",desc:"Familia, esposa, Biblia"}
+];
+
+/* ══════════════════════════════
+   PERSIST
+══════════════════════════════ */
+function save(){
+  try{
+    localStorage.setItem("ma_wq",JSON.stringify(workQueue));
+    localStorage.setItem("ma_wi",""+workIndex);
+  }catch(e){}
+}
+function load(){
+  try{
+    workQueue = JSON.parse(localStorage.getItem("ma_wq")||"[]");
+    workIndex = parseInt(localStorage.getItem("ma_wi")||"0");
+    historial = JSON.parse(localStorage.getItem("ma_outfit_hist")||"[]").slice(-5);
+  }catch(e){}
+}
+load();
+
+/* ── STREAK ── */
+function getStreak(){
+  try{
+    const s = JSON.parse(localStorage.getItem("ma_streak")||'{"count":0,"last":""}');
+    return s;
+  }catch(e){return{count:0,last:""};}
+}
+function markDayDone(){
+  const today = todayStr();
+  const s = getStreak();
+  if(s.last === today) return;
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+  const yStr = yesterday.toISOString().slice(0,10);
+  s.count = (s.last === yStr) ? s.count+1 : 1;
+  s.last = today;
+  try{localStorage.setItem("ma_streak",JSON.stringify(s));}catch(e){}
+  return s.count;
+}
+function todayStr(){return new Date().toISOString().slice(0,10);}
+
+/* ══════════════════════════════
+   INIT UI
+══════════════════════════════ */
+(function init(){
+  const s = getStreak();
+  document.getElementById("streakNum").textContent = s.count;
+  document.getElementById("calStreakNum").textContent = s.count;
+
+  const now = new Date();
+  const days=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+  const months=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  const dateStr = days[now.getDay()]+" "+now.getDate()+" de "+months[now.getMonth()];
+  document.getElementById("todayDate").textContent = dateStr;
+  document.getElementById("calDateBig").textContent = days[now.getDay()]+" "+now.getDate();
+  document.getElementById("calDaySub").textContent = months[now.getMonth()]+" · "+now.getFullYear();
+  document.getElementById("calDateBig").textContent = days[now.getDay()]+" "+now.getDate();
+})();
+
+/* ══════════════════════════════
+   ENERGY
+══════════════════════════════ */
+function setEnergy(e){
+  energy = e;
+  ["low","normal","high"].forEach(x=>{
+    document.getElementById("ebtn-"+x).className="energy-btn"+(x===e?" selected":"");
+  });
 }
 
-/* ================= OUTFIT ================= */
-let pants=["café","verde","azul oscuro","mezclilla"];
-let tops=["polo claro","playera negra","playera gris"];
-let shoes=["zapatos café","zapatos negros"];
+/* ══════════════════════════════
+   START
+══════════════════════════════ */
+function startDay(){
+  dayStarted = true;
+  detectDayType();
+  generateOutfit();
+  showNav();
+  startMorning();
+}
 
+function openCalendarDirect(){
+  renderCalendar();
+  show("calendar");
+  document.getElementById("calBackBtn").style.display="none";
+}
+
+/* ══════════════════════════════
+   DAY TYPE
+══════════════════════════════ */
+function detectDayType(){
+  const d=new Date().getDay();
+  if(d===0||d===6) setDayType("relajado");
+}
+function setDayType(t){
+  dayType=t;
+  document.getElementById("mbtn-trabajo").className="mode-btn"+(t==="trabajo"?" active":"");
+  document.getElementById("mbtn-relajado").className="mode-btn"+(t==="relajado"?" active":"");
+  outfitConfirmed=false;
+  resetOutfitUI();
+  generateOutfit();
+}
+
+/* ══════════════════════════════
+   OUTFIT
+══════════════════════════════ */
 function generateOutfit(){
-  const outfit = `
-    👖 ${rand(pants)}<br>
-    👕 ${rand(tops)}<br>
-    👟 ${rand(shoes)}
-  `;
-  document.getElementById("outfit").innerHTML = outfit;
+  let outfit=null,tries=0;
+  const pool=INVENTARIO.calzado[dayType];
+  const ayer=historial[historial.length-1];
+  while(tries<40){
+    tries++;
+    const sup=pick(INVENTARIO.superiores);
+    const regla=REGLAS[sup.tipo];
+    if(!regla)continue;
+    const pant=pick(regla.pantalones);
+    const zv=pool.filter(z=>(ZAPATOS_PANTALON[z]||[]).includes(pant)&&regla.zapatos.includes(z));
+    if(!zv.length)continue;
+    const calzado=pick(zv);
+    const key=`${sup.nombre}|${pant}|${calzado}`;
+    if(ayer&&ayer.key===key)continue;
+    outfit={superior:sup.nombre,pantalon:pant,calzado,key};
+    break;
+  }
+  if(!outfit)outfit={superior:"playera gris",pantalon:"mezclilla",calzado:dayType==="trabajo"?"zapatos negros":"tenis blancos",key:"fallback"};
+  currentOutfit=outfit;
+  outfitConfirmed=false;
+  resetOutfitUI();
+  renderOutfit();
+  renderHistorial();
+}
+function resetOutfitUI(){
+  document.getElementById("outfitModule").className="outfit-module";
+  document.getElementById("outfitStatus").className="outfit-status";
+  document.getElementById("btnConfirm").textContent="✓ Usar este";
+}
+function renderOutfit(){
+  if(!currentOutfit)return;
+  document.getElementById("val-pantalon").textContent=currentOutfit.pantalon;
+  document.getElementById("val-superior").textContent=currentOutfit.superior;
+  document.getElementById("val-calzado").textContent=currentOutfit.calzado;
+}
+function confirmOutfit(){
+  if(!currentOutfit||outfitConfirmed)return;
+  outfitConfirmed=true;
+  const entry={...currentOutfit,fecha:new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"short"})};
+  historial.push(entry);
+  if(historial.length>5)historial=historial.slice(-5);
+  try{localStorage.setItem("ma_outfit_hist",JSON.stringify(historial));}catch(e){}
+  document.getElementById("outfitModule").className="outfit-module outfit-confirmed";
+  document.getElementById("outfitStatus").className="outfit-status visible";
+  document.getElementById("btnConfirm").textContent="✓ Guardado";
+  renderHistorial();
+}
+function renderHistorial(){
+  const el=document.getElementById("historyRow");
+  if(!historial.length){el.innerHTML="";return;}
+  el.innerHTML=historial.slice().reverse().map(h=>`<span class="history-chip">${h.fecha} · ${h.superior}</span>`).join("");
 }
 
-/* ================= WORK ================= */
-function goWork(){
+/* ══════════════════════════════
+   MORNING FLOW
+══════════════════════════════ */
+function startMorning(){
+  dayMode="morning";
+  const tasks=[
+    {text:getWorkoutTitle(),sub:"Bloque de activación · 07:00",label:"Mañana",step:"workout",duration:25},
+    {text:"Prepararte",sub:"Aseo + Outfit del día",label:"Mañana",step:"prep",duration:15}
+  ];
+  runFlow(tasks,startWork);
+}
+
+function getWorkoutTitle(){
+  const t={low:"Movilidad y activación",normal:"Calistenia",high:"Entrenamiento intenso"};
+  return t[energy];
+}
+
+/* ══════════════════════════════
+   FLOW ENGINE
+══════════════════════════════ */
+let _flowTasks=[], _flowIndex=0, _flowFinish=null;
+
+function runFlow(tasks,finish){
+  _flowTasks=tasks;
+  _flowIndex=0;
+  _flowFinish=finish;
+  showFlowStep();
+}
+
+function showFlowStep(){
+  if(_flowIndex>=_flowTasks.length){
+    if(_flowFinish)_flowFinish();
+    return;
+  }
+  const t=_flowTasks[_flowIndex];
+  currentFlowStep=t.step||"";
+  show("focus");
+
+  document.getElementById("focusBlockLabel").textContent=t.label||"";
+  document.getElementById("focusText").textContent=t.text;
+  document.getElementById("focusType").textContent=t.sub||"";
+
+  // Workout card
+  const wc=document.getElementById("workoutCard");
+  if(t.step==="workout"){
+    wc.style.display="block";
+    renderWorkoutCard();
+  } else {
+    wc.style.display="none";
+  }
+
+  // Outfit module
+  const om=document.getElementById("outfitModule");
+  om.style.display=(t.step==="prep")?"block":"none";
+
+  // Timer
+  timerVal=(t.duration||25)*60;
+  clearInterval(interval);
+  updateTimerDisplay();
+
+  renderProgressDots();
+  _flowIndex++;
+}
+
+function skipBlock(){
+  clearInterval(interval);
+  showFlowStep();
+}
+
+function renderProgressDots(){
+  const el=document.getElementById("progressDots");
+  el.innerHTML=_flowTasks.map((_,i)=>{
+    const idx=_flowIndex-1;
+    let cls=i<idx?"p-done":i===idx?"p-active":"";
+    return`<div class="pdot ${cls}"></div>`;
+  }).join("");
+}
+
+/* ══════════════════════════════
+   WORKOUT CARD
+══════════════════════════════ */
+let workoutChecks={};
+function renderWorkoutCard(){
+  const exercises=WORKOUTS[energy];
+  workoutChecks={};
+  document.getElementById("workoutCard").innerHTML=exercises.map((ex,i)=>`
+    <div class="workout-row" id="wrow-${i}">
+      <div>
+        <div class="workout-ex">${ex.ex}</div>
+        <div class="workout-reps">${ex.reps}</div>
+      </div>
+      <div class="workout-check" id="wcheck-${i}" onclick="toggleWorkoutCheck(${i})"></div>
+    </div>
+  `).join("");
+}
+function toggleWorkoutCheck(i){
+  workoutChecks[i]=!workoutChecks[i];
+  const el=document.getElementById("wcheck-"+i);
+  el.className="workout-check"+(workoutChecks[i]?" done":"");
+  const row=document.getElementById("wrow-"+i);
+  row.style.opacity=workoutChecks[i]?"0.4":"1";
+}
+
+/* ══════════════════════════════
+   TIMER
+══════════════════════════════ */
+function startTimer(){
+  clearInterval(interval);
+  interval=setInterval(()=>{
+    timerVal--;
+    updateTimerDisplay();
+    if(timerVal<=0){
+      clearInterval(interval);
+      showFlowStep();
+    }
+  },1000);
+}
+function updateTimerDisplay(){
+  const m=String(Math.floor(timerVal/60)).padStart(2,"0");
+  const s=String(timerVal%60).padStart(2,"0");
+  document.getElementById("timer").textContent=m+":"+s;
+}
+
+/* ══════════════════════════════
+   WORK
+══════════════════════════════ */
+function startWork(){
+  dayMode="work";
+  currentFlowStep="work";
   show("work");
   renderWork();
 }
-
+function addWork(){
+  const t=prompt("¿Cuál es la tarea?");
+  if(!t)return;
+  workQueue.push(t);
+  save();
+  renderWork();
+}
 function renderWork(){
-  let current = workQueue[workIndex];
-  document.getElementById("currentTask").innerText =
-    current ? current.title : "Sin tareas";
+  const el=document.getElementById("workTask");
+  const remaining=workQueue.slice(workIndex);
+  el.textContent=remaining[0]||"Sin pendientes — agrega una tarea";
+
+  // queue preview
+  const prev=document.getElementById("workQueuePreview");
+  prev.innerHTML=remaining.slice(1,4).map((t,i)=>
+    `<div class="wq-item ${i===0?"wq-next":""}">${t}</div>`
+  ).join("");
 }
-
-function addTask(){
-  let text = prompt("Nueva tarea:");
-  if(!text) return;
-
-  workQueue.push({
-    id: Date.now(),
-    title: text,
-    completed:false
-  });
-
-  save();
-  renderWork();
-}
-
-function completeTask(){
-  if(!workQueue[workIndex]) return;
-
-  workQueue[workIndex].completed = true;
+function completeWork(){
   workIndex++;
-
   save();
-  renderWork();
+  if(workIndex>=workQueue.length) startAfter();
+  else renderWork();
 }
 
-/* ================= CALENDAR ================= */
-function goCalendar(){
-  renderCalendar();
-  show("calendar");
+/* ══════════════════════════════
+   AFTER
+══════════════════════════════ */
+const AFTER_BLOCKS=[
+  {options:["App residencial","Cerrar venta","Mejorar spa","Marketing"],label:"18:00 · Crecimiento"},
+  {options:["Privacidad digital","Leer","Podcast productividad","Estudiar"],label:"19:00 · Desarrollo"},
+  {options:["Esposa","Familia","Biblia","Reflexión del día"],label:"20:00 · Lo que importa"}
+];
+
+function startAfter(){
+  dayMode="after";
+  currentFlowStep="after";
+  afterTasks=AFTER_BLOCKS.map(b=>({text:pick(b.options),label:b.label}));
+  afterIndex=0;
+  renderAfter();
+  show("after");
+}
+function renderAfter(){
+  document.getElementById("afterText").textContent=afterTasks[afterIndex].text;
+  document.getElementById("afterSub").textContent=afterTasks[afterIndex].label;
+  document.getElementById("afterBlockLabel").textContent="Noche";
+
+  // progress bars
+  const p=document.getElementById("afterProgress");
+  p.innerHTML=afterTasks.map((_,i)=>
+    `<div class="ap-bar ${i<afterIndex?"done":i===afterIndex?"current":""}"></div>`
+  ).join("");
+}
+function nextAfter(){
+  afterIndex++;
+  if(afterIndex>=afterTasks.length) finishDay();
+  else renderAfter();
 }
 
-function renderCalendar(){
+/* ══════════════════════════════
+   DONE
+══════════════════════════════ */
+function finishDay(){
+  const streak=markDayDone();
+  const s=getStreak();
+  document.getElementById("streakNum").textContent=s.count;
+  document.getElementById("calStreakNum").textContent=s.count;
 
-  let done = workQueue.filter(t=>t.completed).length;
-  let total = workQueue.length;
+  const done=workQueue.length>0?workIndex:0;
+  const total=workQueue.length;
 
-  let html = `
-    <div>${done} / ${total} completadas</div>
-    <button onclick="addTask()">+ Agregar</button>
+  document.getElementById("doneCard").innerHTML=`
+    <div class="done-stat"><span class="done-stat-label">Racha</span><span class="done-stat-val">🔥 ${s.count} días</span></div>
+    <div class="done-stat"><span class="done-stat-label">Tareas</span><span class="done-stat-val">${done}/${total} completadas</span></div>
+    <div class="done-stat"><span class="done-stat-label">Outfit</span><span class="done-stat-val">${outfitConfirmed?"✓ Confirmado":"—"}</span></div>
+    <div class="done-stat"><span class="done-stat-label">Entrenamiento</span><span class="done-stat-val">${getWorkoutTitle()}</span></div>
   `;
+  show("done");
+}
 
-  workQueue.forEach((t,i)=>{
-    html += `
-      <div class="task ${t.completed?'done':''}"
-           onclick="toggleTask(${i})">
+function resetDay(){
+  const t=prompt("Agregar tarea para mañana:");
+  if(!t)return;
+  workQueue.push(t);
+  workIndex=workQueue.length-1; // keep done ones
+  save();
+  alert("Guardado. Mañana aparecerá en tu lista.");
+}
 
-        <input type="checkbox"
-          ${t.completed?'checked':''}
-          style="pointer-events:none">
+/* ══════════════════════════════
+   CALENDAR / TIMELINE
+══════════════════════════════ */
+function renderCalendar(){
+  const now=new Date();
+  const nowH=now.getHours()+now.getMinutes()/60;
 
-        ${t.title}
-      </div>
-    `;
+  let html="";
+  SCHEDULE.forEach(block=>{
+    const startH=parseInt(block.time);
+    const endH=parseInt(block.endTime);
+    const isActive=nowH>=startH&&nowH<endH;
+    const isDone=nowH>=endH;
+
+    let dotCls=isDone?"done-block":isActive?"active-block":"";
+    let cardCls=isActive?"current":isDone?"done-card":"";
+
+    // content per block
+    let bodyHtml=`<div class="tl-card-body">${block.desc}</div>`;
+
+    if(block.id==="activacion"){
+      const exs=WORKOUTS[energy];
+      bodyHtml=`
+        <div class="tl-card-body has-content">
+          ${getWorkoutTitle()} · ${energy==="low"?"30 min":energy==="high"?"45 min":"35 min"}
+        </div>
+        <ul class="task-list">
+          ${exs.slice(0,3).map(e=>`<li>${e.ex} <span style="color:#2a2a2a">${e.reps}</span></li>`).join("")}
+          ${exs.length>3?`<li style="color:#2a2a2a">+${exs.length-3} más</li>`:""}
+        </ul>`;
+      if(currentOutfit){
+        bodyHtml+=`<div class="outfit-inline">
+          <span class="outfit-pill ${outfitConfirmed?"confirmed":""}">${currentOutfit.pantalon}</span>
+          <span class="outfit-pill ${outfitConfirmed?"confirmed":""}">${currentOutfit.superior}</span>
+          <span class="outfit-pill ${outfitConfirmed?"confirmed":""}">${currentOutfit.calzado}</span>
+          ${outfitConfirmed?"":"<span class='outfit-pill' style='cursor:pointer;color:#555' onclick='navTo(\"focus-or-work\")'>Confirmar →</span>"}
+        </div>`;
+      }
+    }
+
+    if(block.id==="oficina-am"||block.id==="oficina-pm"){
+      const remaining=workQueue.slice(workIndex);
+      if(remaining.length){
+        bodyHtml=`<ul class="task-list">
+          ${remaining.map((t,i)=>`<li class="${i<workIndex?"done-task":""}">${t}</li>`).join("")}
+        </ul>`;
+      } else {
+        bodyHtml=`<div class="tl-card-body" style="color:#2a2a2a">Sin pendientes — agrega tareas</div>`;
+      }
+    }
+
+    if(block.id==="crecimiento"){
+      const opts=AFTER_BLOCKS[0].options.slice(0,3);
+      bodyHtml=`<ul class="task-list">${opts.map(o=>`<li>${o}</li>`).join("")}</ul>`;
+    }
+    if(block.id==="personal"){
+      const opts=AFTER_BLOCKS[2].options;
+      bodyHtml=`<ul class="task-list">${opts.map(o=>`<li>${o}</li>`).join("")}</ul>`;
+    }
+
+    const startBtn = isActive&&dayStarted?
+      `<button class="btn-start-block" onclick="navTo('focus-or-work')">→ Ir al bloque activo</button>`:"";
+
+    html+=`
+      <div class="tl-block">
+        <div class="tl-time">${block.time}</div>
+        <div class="tl-dot ${dotCls}"></div>
+        <div class="tl-card ${cardCls}">
+          <div class="tl-card-header">
+            <div class="tl-card-title">${block.icon} ${block.title}</div>
+            <div class="tl-card-range">${block.time}–${block.endTime}</div>
+            ${isDone?'<div class="tl-card-done-mark">✓</div>':""}
+          </div>
+          ${bodyHtml}
+          ${startBtn}
+        </div>
+      </div>`;
   });
 
-  document.getElementById("calendarContent").innerHTML = html;
+  document.getElementById("timelineContent").innerHTML=html;
 }
 
-/* ================= TOGGLE ================= */
-function toggleTask(i){
-
-  workQueue[i].completed = !workQueue[i].completed;
-
-  if(workQueue[i].completed && i >= workIndex){
-    workIndex = i + 1;
+/* ══════════════════════════════
+   NAVIGATION
+══════════════════════════════ */
+function navTo(target){
+  if(!dayStarted&&target!=="calendar"){
+    showLock();
+    return;
   }
-
-  if(!workQueue[i].completed && i < workIndex){
-    workIndex = i;
+  if(target==="calendar"){
+    renderCalendar();
+    show("calendar");
+    document.getElementById("calBackBtn").style.display="block";
+    return;
   }
-
-  save();
-  renderCalendar();
-  renderWork();
+  if(target==="focus-or-work"){
+    if(dayMode==="morning") show("focus");
+    else if(dayMode==="work") show("work");
+    else if(dayMode==="after") show("after");
+    else show("focus");
+    return;
+  }
+  if(target==="after"){
+    if(dayMode==="after") show("after");
+    else showLock();
+    return;
+  }
 }
 
-/* ================= NAV ================= */
+function back(){
+  if(!dayStarted){show("energy");return;}
+  if(dayMode==="morning"||dayMode==="work"||dayMode==="after") navTo("focus-or-work");
+  else show("energy");
+}
+
+function showLock(){
+  document.getElementById("lockOverlay").className="visible";
+}
+function hideLock(){
+  document.getElementById("lockOverlay").className="";
+}
+
+function showNav(){
+  document.getElementById("navBar").className="nav-bar visible";
+}
+
+/* ══════════════════════════════
+   UTILS
+══════════════════════════════ */
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
 function show(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
-
-/* ================= SAVE ================= */
-function save(){
-  localStorage.setItem("tasks", JSON.stringify(workQueue));
-  localStorage.setItem("index", workIndex);
-}
-
-function rand(arr){
-  return arr[Math.floor(Math.random()*arr.length)];
-}
-
-/* INIT */
-renderWork();
-
 </script>
-
 </body>
 </html>
