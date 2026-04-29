@@ -3,165 +3,215 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calendario Pro</title>
+<title>Modo Acero</title>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #0f0f0f;
-    color: #fff;
-    margin: 0;
-    padding: 20px;
+body{
+    font-family: Arial;
+    background:#0a0a0a;
+    color:#fff;
+    margin:0;
+    padding:20px;
 }
 
-button {
-    padding: 8px 12px;
-    margin: 5px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+/* 🎨 BOTONES */
+button{
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:linear-gradient(45deg,#6a00ff,#0044ff);
+    color:#fff;
 }
 
-.view-buttons {
-    margin-bottom: 10px;
+/* 🟣 HEADER */
+.header{
+    margin-bottom:15px;
 }
 
-/* DAY VIEW */
-.hour-row {
-    display: flex;
-    border-bottom: 1px solid #333;
-    padding: 6px;
-    cursor: pointer;
+.mode{
+    font-size:12px;
+    color:#9a6cff;
 }
 
-.hour-time {
-    width: 60px;
-    color: #888;
+/* 🔵 DAY VIEW */
+.hour-row{
+    display:flex;
+    border-bottom:1px solid #222;
+    padding:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+.hour-row:hover{
+    background:#111;
 }
 
-.task {
-    display: flex;
-    gap: 10px;
+.hour-time{
+    width:60px;
+    color:#666;
 }
 
-.done-task {
-    text-decoration: line-through;
-    opacity: 0.5;
+.task{
+    display:flex;
+    gap:10px;
 }
 
-/* MONTH */
-.month-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
+.done-task{
+    text-decoration:line-through;
+    opacity:0.4;
 }
 
-.day-cell {
-    border: 1px solid #333;
-    min-height: 90px;
-    padding: 5px;
-    background: #1a1a1a;
-    cursor: pointer;
+/* 🟣 MONTH */
+.month-grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:5px;
 }
 
-.day-cell:hover {
-    background: #222;
+.day-cell{
+    background:#111;
+    border:1px solid #222;
+    min-height:90px;
+    padding:5px;
+    cursor:pointer;
+}
+.day-cell:hover{
+    background:#1a1a2e;
+}
+
+/* 🔥 FRASE */
+.mind{
+    margin-bottom:10px;
+    color:#6a00ff;
+    font-size:14px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="view-buttons">
-    <button onclick="setView('day')">Día</button>
-    <button onclick="setView('month')">Mes</button>
+<div class="header">
+    <h2>Modo Acero</h2>
+    <div class="mode" id="modeText"></div>
+    <div class="mind" id="mindText"></div>
 </div>
+
+<button onclick="setView('day')">Día</button>
+<button onclick="setView('month')">Mes</button>
 
 <h3 id="title"></h3>
 <div id="calendar"></div>
 
 <script>
 
+/* ─── DATA ─── */
 let tasksByDate = JSON.parse(localStorage.getItem('tasksByDate')) || {};
-let currentView = "day";
-let selectedDate = today();
+let currentView="day";
+let selectedDate=today();
 
 function today(){
     return new Date().toISOString().split("T")[0];
 }
 
 function save(){
-    localStorage.setItem("tasksByDate", JSON.stringify(tasksByDate));
+    localStorage.setItem("tasksByDate",JSON.stringify(tasksByDate));
 }
 
-/* ───── RENDER ───── */
+/* ─── FRASES / IDENTIDAD ─── */
+
+function setMind(){
+    const hour=new Date().getHours();
+
+    let mode="";
+    let phrase="";
+
+    if(hour<9){
+        mode="🟣 ENTRO EN ESCENA";
+        phrase="Hoy voy a destacar";
+    }
+    else if(hour<18){
+        mode="🔵 PERFORMANCE";
+        phrase="Todo cuenta";
+    }
+    else{
+        mode="⚫ CONEXIÓN REAL";
+        phrase="Aquí está lo importante";
+    }
+
+    document.getElementById("modeText").textContent=mode;
+    document.getElementById("mindText").textContent=phrase;
+}
+
+/* ─── RENDER ─── */
 
 function render(){
-    const el = document.getElementById("calendar");
-    el.innerHTML = "";
+    setMind();
 
-    if(currentView === "month"){
+    const el=document.getElementById("calendar");
+    el.innerHTML="";
+
+    if(currentView==="month"){
         renderMonth(el);
-    } else {
+    }else{
         renderDay(el);
     }
 }
 
-/* ───── DAY (HORAS) ───── */
+/* ─── DAY VIEW (HORAS) ─── */
 
 function renderDay(container){
-    document.getElementById("title").textContent = selectedDate;
+    document.getElementById("title").textContent=selectedDate;
 
-    const tasks = tasksByDate[selectedDate] || [];
+    const tasks=tasksByDate[selectedDate]||[];
 
-    for(let h=7; h<=22; h++){
-        const hour = String(h).padStart(2,'0')+":00";
+    for(let h=7;h<=22;h++){
+        const hour=String(h).padStart(2,'0')+":00";
 
-        const row = document.createElement("div");
-        row.className = "hour-row";
+        const row=document.createElement("div");
+        row.className="hour-row";
 
-        const time = document.createElement("div");
-        time.className = "hour-time";
-        time.textContent = hour;
+        const time=document.createElement("div");
+        time.className="hour-time";
+        time.textContent=hour;
 
-        const content = document.createElement("div");
+        const content=document.createElement("div");
 
-        const task = tasks.find(t=>t.time === hour);
+        const task=tasks.find(t=>t.time===hour);
 
         if(task){
-            const taskEl = document.createElement("div");
-            taskEl.className = "task " + (task.completed ? "done-task" : "");
+            const taskEl=document.createElement("div");
+            taskEl.className="task "+(task.completed?"done-task":"");
 
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.checked = task.completed;
+            const check=document.createElement("input");
+            check.type="checkbox";
+            check.checked=task.completed;
 
-            checkbox.onclick = (e)=>{
+            check.onclick=(e)=>{
                 e.stopPropagation();
-                task.completed = !task.completed;
+                task.completed=!task.completed;
                 save();
                 render();
             };
 
-            const text = document.createElement("span");
-            text.textContent = task.title;
+            const text=document.createElement("span");
+            text.textContent=task.title;
 
-            taskEl.appendChild(checkbox);
+            taskEl.appendChild(check);
             taskEl.appendChild(text);
 
             content.appendChild(taskEl);
         }
 
-        row.onclick = ()=>{
-            const title = prompt("Tarea para "+hour);
-            if(!title) return;
+        row.onclick=()=>{
+            const title=prompt("Tarea para "+hour);
+            if(!title)return;
 
             if(!tasksByDate[selectedDate]){
-                tasksByDate[selectedDate] = [];
+                tasksByDate[selectedDate]=[];
             }
 
             tasksByDate[selectedDate].push({
-                time: hour,
+                time:hour,
                 title,
                 completed:false
             });
@@ -176,40 +226,40 @@ function renderDay(container){
     }
 }
 
-/* ───── MONTH ───── */
+/* ─── MONTH VIEW ─── */
 
 function renderMonth(container){
-    document.getElementById("title").textContent = "Vista mensual";
+    document.getElementById("title").textContent="Vista mensual";
 
-    const grid = document.createElement("div");
-    grid.className = "month-grid";
+    const grid=document.createElement("div");
+    grid.className="month-grid";
 
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
+    const now=new Date();
+    const year=now.getFullYear();
+    const month=now.getMonth();
 
-    const totalDays = new Date(year, month+1, 0).getDate();
+    const total=new Date(year,month+1,0).getDate();
 
-    for(let d=1; d<=totalDays; d++){
-        const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    for(let d=1;d<=total;d++){
+        const dateKey=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 
-        const cell = document.createElement("div");
-        cell.className = "day-cell";
+        const cell=document.createElement("div");
+        cell.className="day-cell";
 
-        cell.innerHTML = "<strong>"+d+"</strong>";
+        cell.innerHTML="<strong>"+d+"</strong>";
 
-        const tasks = tasksByDate[dateKey] || [];
+        const tasks=tasksByDate[dateKey]||[];
 
         tasks.slice(0,2).forEach(t=>{
-            const div = document.createElement("div");
-            div.textContent = t.time+" "+t.title;
-            div.style.fontSize = "10px";
+            const div=document.createElement("div");
+            div.textContent=t.time+" "+t.title;
+            div.style.fontSize="10px";
             cell.appendChild(div);
         });
 
-        cell.onclick = ()=>{
-            selectedDate = dateKey;
-            currentView = "day";
+        cell.onclick=()=>{
+            selectedDate=dateKey;
+            currentView="day";
             render();
         };
 
@@ -219,10 +269,10 @@ function renderMonth(container){
     container.appendChild(grid);
 }
 
-/* ───── NAV ───── */
+/* ─── NAV ─── */
 
 function setView(v){
-    currentView = v;
+    currentView=v;
     render();
 }
 
