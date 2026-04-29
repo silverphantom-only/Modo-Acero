@@ -1,125 +1,225 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendario Interactivo</title>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        .calendar-container { display: flex; flex-direction: column; gap: 10px; }
-        .office-block { border: 1px solid #ccc; padding: 10px; margin: 5px 0; }
-        .task { display: flex; align-items: center; gap: 10px; padding: 5px; cursor: pointer; }
-        .done-task { text-decoration: line-through; opacity: 0.7; }
-        .view-buttons { margin-bottom: 10px; }
-        .progress { margin-top: 10px; font-size: 0.9em; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendario Pro</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #0f0f0f;
+    color: #fff;
+    margin: 0;
+    padding: 20px;
+}
+
+.view-buttons {
+    margin-bottom: 15px;
+}
+
+button {
+    padding: 8px 12px;
+    margin-right: 5px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.task {
+    display: flex;
+    gap: 10px;
+    padding: 8px;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+}
+
+.done-task {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
+.progress {
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+/* 🔥 MONTH GRID */
+.month-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.day-cell {
+    border: 1px solid #333;
+    min-height: 90px;
+    padding: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    background: #1a1a1a;
+}
+
+.day-cell:hover {
+    background: #222;
+}
+</style>
 </head>
+
 <body>
-    <div class="view-buttons">
-        <button onclick="setView('day')">Día</button>
-        <button onclick="setView('week')">Semana</button>
-        <button onclick="setView('month')">Mes</button>
-    </div>
-    <div id="calendar-container" class="calendar-container"></div>
-    <script>
-        let workQueue = JSON.parse(localStorage.getItem('workQueue')) || [];
-        let workIndex = 0;
-        let currentView = 'day';
 
-        function renderCalendar() {
-            const container = document.getElementById('calendar-container');
-            container.innerHTML = '';
+<div class="view-buttons">
+    <button onclick="setView('day')">Día</button>
+    <button onclick="setView('month')">Mes</button>
+</div>
 
-            let blocks = [];
-            switch (currentView) {
-                case 'day':
-                    blocks = getDayBlocks();
-                    break;
-                case 'week':
-                    blocks = getWeekBlocks();
-                    break;
-                case 'month':
-                    blocks = getMonthBlocks();
-                    break;
-            }
+<h3 id="currentDate"></h3>
 
-            blocks.forEach((block, blockIndex) => {
-                const blockElement = document.createElement('div');
-                blockElement.className = 'office-block';
+<div id="calendar-container"></div>
 
-                block.tasks.forEach((task, taskIndex) => {
-                    const taskElement = document.createElement('div');
-                    taskElement.className = `task ${task.completed ? 'done-task' : ''}`;
+<script>
 
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.checked = task.completed;
-                    checkbox.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        toggleTask(blockIndex, taskIndex);
-                    });
+let tasksByDate = JSON.parse(localStorage.getItem('tasksByDate')) || {};
+let currentView = 'day';
+let selectedDate = getToday();
 
-                    const title = document.createElement('span');
-                    title.textContent = task.title;
+function getToday(){
+    return new Date().toISOString().split('T')[0];
+}
 
-                    taskElement.appendChild(checkbox);
-                    taskElement.appendChild(title);
-                    taskElement.addEventListener('click', () => checkbox.click());
+function save(){
+    localStorage.setItem('tasksByDate', JSON.stringify(tasksByDate));
+}
 
-                    blockElement.appendChild(taskElement);
-                });
+function formatDate(date){
+    return new Date(date).toLocaleDateString('es-MX',{
+        weekday:'long', year:'numeric', month:'long', day:'numeric'
+    });
+}
 
-                container.appendChild(blockElement);
-            });
+function renderCalendar(){
+    const container = document.getElementById('calendar-container');
+    const title = document.getElementById('currentDate');
+    container.innerHTML = '';
 
-            // Botón "+ Agregar"
-            const addButton = document.createElement('button');
-            addButton.textContent = '+ Agregar';
-            addButton.addEventListener('click', addWork);
-            container.appendChild(addButton);
+    if(currentView === 'month'){
+        title.textContent = "Vista mensual";
+        renderMonth(container);
+        return;
+    }
 
-            // Progreso
-            const progress = document.createElement('div');
-            const completed = workQueue.filter(t => t.completed).length;
-            progress.className = 'progress';
-            progress.textContent = `${completed}/${workQueue.length} completadas`;
-            container.appendChild(progress);
-        }
+    title.textContent = formatDate(selectedDate);
 
-        function toggleTask(blockIndex, taskIndex) {
-            const task = workQueue[workIndex];
-            task.completed = !task.completed;
-            localStorage.setItem('workQueue', JSON.stringify(workQueue));
-            renderCalendar();
-        }
+    const tasks = tasksByDate[selectedDate] || [];
 
-        function addWork() {
-            const newTask = { title: `Tarea ${workQueue.length + 1}`, completed: false };
-            workQueue.push(newTask);
-            localStorage.setItem('workQueue', JSON.stringify(workQueue));
-            renderCalendar();
-        }
+    tasks.forEach((task, i) => {
+        const el = document.createElement('div');
+        el.className = `task ${task.completed ? 'done-task' : ''}`;
 
-        function setView(view) {
-            currentView = view;
-            renderCalendar();
-        }
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = task.completed;
 
-        // Funciones para obtener bloques según la vista (ejemplo simplificado)
-        function getDayBlocks() {
-            return [{ tasks: workQueue }];
-        }
+        checkbox.onclick = (e)=>{
+            e.stopPropagation();
+            toggleTask(i);
+        };
 
-        function getWeekBlocks() {
-            return [{ tasks: workQueue.slice(0, 7) }, { tasks: workQueue.slice(7) }];
-        }
+        const text = document.createElement('span');
+        text.textContent = task.title;
 
-        function getMonthBlocks() {
-            return [{ tasks: workQueue.slice(0, 15) }, { tasks: workQueue.slice(15) }];
-        }
+        el.appendChild(checkbox);
+        el.appendChild(text);
 
-        // Inicializar
-        renderCalendar();
-    </script>
+        el.onclick = () => checkbox.click();
+
+        container.appendChild(el);
+    });
+
+    const btn = document.createElement('button');
+    btn.textContent = '+ Agregar tarea';
+    btn.onclick = addWork;
+    container.appendChild(btn);
+
+    const completed = tasks.filter(t=>t.completed).length;
+    const prog = document.createElement('div');
+    prog.className = 'progress';
+    prog.textContent = `${completed}/${tasks.length} completadas`;
+    container.appendChild(prog);
+}
+
+function toggleTask(index){
+    const tasks = tasksByDate[selectedDate] || [];
+    tasks[index].completed = !tasks[index].completed;
+    save();
+    renderCalendar();
+}
+
+function addWork(){
+    const title = prompt("Nueva tarea");
+    if(!title) return;
+
+    if(!tasksByDate[selectedDate]){
+        tasksByDate[selectedDate] = [];
+    }
+
+    tasksByDate[selectedDate].push({
+        title,
+        completed:false
+    });
+
+    save();
+    renderCalendar();
+}
+
+function setView(view){
+    currentView = view;
+    renderCalendar();
+}
+
+function openDay(date){
+    selectedDate = date;
+    currentView = 'day';
+    renderCalendar();
+}
+
+function renderMonth(container){
+    const grid = document.createElement('div');
+    grid.className = 'month-grid';
+
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    const totalDays = new Date(year, month+1, 0).getDate();
+
+    for(let d=1; d<=totalDays; d++){
+        const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const cell = document.createElement('div');
+        cell.className = 'day-cell';
+
+        cell.innerHTML = `<strong>${d}</strong>`;
+
+        const tasks = tasksByDate[dateKey] || [];
+
+        tasks.slice(0,2).forEach(t=>{
+            const div = document.createElement('div');
+            div.textContent = t.title;
+            div.style.fontSize = "10px";
+            cell.appendChild(div);
+        });
+
+        cell.onclick = ()=>openDay(dateKey);
+
+        grid.appendChild(cell);
+    }
+
+    container.appendChild(grid);
+}
+
+renderCalendar();
+
+</script>
+
 </body>
 </html>
